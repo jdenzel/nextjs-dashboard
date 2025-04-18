@@ -102,24 +102,16 @@ async function seedRevenue() {
   return insertedRevenue;
 }
 
-export async function seedDatabase() {
-  try {
-    await seedUsers();
-    await seedCustomers();
-    await seedInvoices();
-    await seedRevenue();
-    return { success: true };
-  } catch (error) {
-    console.error('Error seeding database:', error);
-    throw error;
-  }
-}
-
-// API route handler
 export async function GET() {
   try {
-    await seedDatabase();
-    return NextResponse.json({ message: 'Database seeded successfully' });
+    const result = await sql.begin((sql) => [
+      seedUsers(),
+      seedCustomers(),
+      seedInvoices(),
+      seedRevenue(),
+    ]);
+
+    return  NextResponse.json({ message: 'Database seeded successfully' });
   } catch (error) {
     return NextResponse.json({ error }, { status: 500 });
   }
